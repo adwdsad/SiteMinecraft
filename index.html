@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Майнкрафт • Интерактивный портал</title>
+  <!-- Подключение шрифта для стиля Minecraft -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* ----- ОБЩИЕ СТИЛИ И CSS-ФИШКИ ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      background: #1a1a1a;
+      background-image: radial-gradient(circle at 20% 30%, #2d4a2d 5%, #0f1a0f 90%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      color: #e0d6b0;
+      image-rendering: pixelated; /* фишка пиксельного рендеринга */
+    }
+
+    /* Декоративный пиксельный бордер — фишка CSS */
+    .pixel-border {
+      background: #2b2b2b;
+      border: 6px solid #5a4a3a;
+      box-shadow: 
+        inset 0 0 0 4px #3a2e1e,
+        inset 0 0 0 8px #1f1a10,
+        0 10px 20px rgba(0,0,0,0.7);
+      padding: 20px;
+      margin: 20px 0;
+      width: 100%;
+      max-width: 1000px;
+      background-color: #1e2416;
+      transition: all 0.3s ease;
+    }
+
+    /* Заголовки в стиле Minecraft */
+    h1, h2 {
+      text-shadow: 4px 4px 0 #3b2e1e, 6px 6px 0 rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #f5e56c;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      word-break: break-word;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 20px 0 15px;
+      color: #c2a54b;
+    }
+
+    /* Кнопки навигации — стилизация под камень/землю */
+    .nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin: 30px 0 20px;
+    }
+
+    .minecraft-btn {
+      background: #7a7a7a;
+      background-image: linear-gradient(180deg, #b0a87c 0%, #6b6b4a 50%, #3d3d26 100%);
+      border: 4px solid #2b2b1a;
+      border-bottom: 6px solid #1a1a0f;
+      border-right: 6px solid #1a1a0f;
+      box-shadow: inset -3px -3px 0 #4f4f2e, inset 3px 3px 0 #d4cf8b, 0 6px 0 #2a2a12;
+      color: #f7f3c2;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      padding: 14px 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.08s ease;
+      image-rendering: pixelated;
+      text-shadow: 2px 2px 0 #1f1f0a;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .minecraft-btn:hover {
+      background-image: linear-gradient(180deg, #c5bf8c 0%, #8a8a5a 50%, #5a5a30 100%);
+      color: #fffbcc;
+      border-color: #4a4a22;
+      transform: translateY(-2px);
+      box-shadow: inset -3px -3px 0 #6f6f3e, inset 3px 3px 0 #e5dfa0, 0 8px 0 #2f2f14;
+    }
+
+    .minecraft-btn:active {
+      transform: translateY(4px);
+      box-shadow: inset -2px -2px 0 #3d3d1e, inset 2px 2px 0 #9f9f6a, 0 2px 0 #1f1f0a;
+      border-bottom-width: 3px;
+      border-right-width: 3px;
+    }
+
+    /* Кнопка игры выделяется */
+    .game-btn {
+      background-image: linear-gradient(180deg, #c8a84e 0%, #8a7a3a 50%, #5a4a1a 100%) !important;
+      border-color: #4a3a0a !important;
+      box-shadow: inset -3px -3px 0 #7a6a1e, inset 3px 3px 0 #e5d570, 0 6px 0 #3a2a12 !important;
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: inset -3px -3px 0 #7a6a1e, inset 3px 3px 0 #e5d570, 0 6px 0 #3a2a12; }
+      50% { box-shadow: inset -3px -3px 0 #7a6a1e, inset 3px 3px 0 #f5e580, 0 6px 0 #3a2a12, 0 0 20px #c8a84e; }
+    }
+
+    /* Контейнер страниц */
+    .page {
+      display: none;
+      animation: pixelFadeIn 0.5s ease-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pixelFadeIn {
+      0% { opacity: 0; transform: scale(0.95) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Карточки серверов */
+    .server-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .server-card {
+      background: #252b1a;
+      border: 4px solid #5b4a2c;
+      padding: 18px;
+      width: 250px;
+      box-shadow: inset 0 0 15px #0f1208, 0 8px 0 #2f2818;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+
+    .server-card:hover {
+      transform: translateY(-6px) rotate(0.5deg);
+      box-shadow: inset 0 0 20px #2f3a12, 0 12px 0 #2f2818;
+      border-color: #aa9b5e;
+    }
+
+    /* Техподдержка — чат-окно */
+    .support-chat {
+      background: #0e0f0a;
+      border: 4px solid #6b5e3a;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 2px;
+      box-shadow: inset 0 0 20px black;
+    }
+
+    .chat-messages {
+      background: #1f2312;
+      min-height: 140px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 2px solid #4e4024;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #c7d48b;
+      text-shadow: 0 0 5px #000;
+    }
+
+    .support-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .support-btn {
+      background: #4f5a2e;
+      border: 3px solid #2d3316;
+      color: #e5eeb0;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 black;
+      transition: 0.1s;
+      flex: 1 1 auto;
+    }
+
+    .support-btn:hover {
+      background: #6f7c3a;
+    }
+
+    .typing-indicator {
+      color: #b9b44c;
+      margin: 5px 0;
+      font-style: italic;
+    }
+
+    /* ----- СТИЛИ ДЛЯ ИГРЫ ЗМЕЙКА ----- */
+    .snake-game-container {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .game-canvas-wrapper {
+      display: inline-block;
+      border: 6px solid #5a4a3a;
+      box-shadow: 
+        inset 0 0 0 4px #3a2e1e,
+        inset 0 0 0 8px #1f1a10,
+        0 10px 20px rgba(0,0,0,0.7);
+      background: #1a1a1a;
+      padding: 10px;
+    }
+
+    #snakeCanvas {
+      display: block;
+      image-rendering: pixelated;
+      background: #222211;
+      border: 2px solid #3a3a1a;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 15px 0;
+      font-size: 0.8rem;
+      color: #f5e56c;
+      text-shadow: 2px 2px 0 #3b2e1e;
+    }
+
+    .score-display {
+      background: #1a1a0f;
+      border: 3px solid #5a4a2c;
+      padding: 8px 15px;
+      color: #c8a84e;
+    }
+
+    .game-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .game-instructions {
+      margin-top: 15px;
+      font-size: 0.55rem;
+      color: #aaa57c;
+      line-height: 1.8;
+    }
+
+    .game-over-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      color: #ff4444;
+      padding: 20px 30px;
+      border: 3px solid #aa2a2a;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+      text-shadow: 2px 2px 0 black;
+    }
+
+    hr {
+      border: 2px dashed #5a4d2c;
+      margin: 20px 0;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.55rem;
+      color: #867e55;
+    }
+
+    /* Адаптив */
+    @media (max-width: 650px) {
+      .minecraft-btn {
+        font-size: 0.6rem;
+        padding: 10px 14px;
+        min-width: 110px;
+      }
+      
+      .game-stats {
+        font-size: 0.6rem;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>⛏️ МАЙНКРАФТ-ПОРТАЛ ⚡</h1>
+  
+  <!-- Кнопки навигации -->
+  <div class="nav-buttons">
+    <button class="minecraft-btn" id="btnHistory">📜 История</button>
+    <button class="minecraft-btn" id="btnServers">🌍 Сервера</button>
+    <button class="minecraft-btn" id="btnUpdates">🔄 Обновления</button>
+    <button class="minecraft-btn game-btn" id="btnSnakeGame">🐍 Змейка</button>
+  </div>
+
+  <!-- Страницы (контент) -->
+  <div class="pixel-border">
+    <!-- Страница 1: История создания -->
+    <div id="pageHistory" class="page active">
+      <h2>🏰 История создания</h2>
+      <p>Всё началось в 2009 году, когда Маркус Перссон (Notch) вдохновился игрой Infiniminer. Первая версия была написана на Java всего за несколько дней.</p>
+      <p>🎮 <strong>Альфа и бета:</strong> В 2010 году появился Nether, биомы и выживание. Игра быстро стала феноменом.</p>
+      <p>💎 <strong>Полный релиз (1.0)</strong> состоялся 18 ноября 2011 года на MineCon. Добавлен Край и дракон.</p>
+      <p>С тех пор Minecraft развивается: пещеры, редстоун, деревенские жители, и бесконечные приключения. Сейчас игра принадлежит Microsoft, но дух остался тем же.</p>
+      <p style="margin-top:15px; color:#d4b96a;">⛏️ Копай глубже, строй выше!</p>
+    </div>
+
+    <!-- Страница 2: Сервера -->
+    <div id="pageServers" class="page">
+      <h2>🌐 Популярные сервера</h2>
+      <div class="server-grid">
+        <div class="server-card">
+          <span style="font-size:1.6rem;">🏹</span>
+          <h3 style="font-size:0.9rem;">Hypixel</h3>
+          <p>Мини-игры, Bed Wars, SkyBlock. Огромное комьюнити.</p>
+          <p style="color:#b5a042;">IP: hypixel.net</p>
+        </div>
+        <div class="server-card">
+          <span style="font-size:1.6rem;">🌲</span>
+          <h3 style="font-size:0.9rem;">Mineplex</h3>
+          <p>Аркады, выживание, креатив. Дружелюбная атмосфера.</p>
+          <p style="color:#b5a042;">IP: mineplex.com</p>
+        </div>
+        <div class="server-card">
+          <span style="font-size:1.6rem;">⚔️</span>
+          <h3 style="font-size:0.9rem;">CubeCraft</h3>
+          <p>EggWars, SkyWars, уникальные режимы.</p>
+          <p style="color:#b5a042;">IP: cubecraft.net</p>
+        </div>
+      </div>
+      <p style="margin-top:20px; font-size:0.7rem; color:#aaa57c;">Подключайся и играй с друзьями! Все сервера проверены.</p>
+    </div>
+
+    <!-- Страница 3: Новые обновления -->
+    <div id="pageUpdates" class="page">
+      <h2>✨ Новые обновления</h2>
+      <p><strong>1.21 • Tricky Trials</strong> (2024) — испытательные палаты, breezes, новые ремесленные блоки.</p>
+      <p><strong>1.20 • Trails & Tales</strong> — верблюды, археология, вишнёвые рощи, броня с узорами.</p>
+      <p><strong>1.19 • The Wild</strong> — тёмные глубины, хранитель, лягушки и мангровые болота.</p>
+      <p><strong>1.18 • Caves & Cliffs II</strong> — полностью переработанная генерация мира, горы до 256 высоты.</p>
+      <p style="margin-top:15px; background:#2b331a; padding:8px; border-left:5px solid #b3974a;">
+        🔥 Скоро: новые варианты волков, автокрафтинг и улучшенные подземелья.
+      </p>
+    </div>
+
+    <!-- Страница 4: Мини-игра Змейка -->
+    <div id="pageSnakeGame" class="page">
+      <h2>🐍 Змейка в стиле Minecraft</h2>
+      <div class="snake-game-container">
+        <div class="game-stats">
+          <span>🍎 Счёт: <span id="scoreDisplay" class="score-display">0</span></span>
+          <span>🏆 Рекорд: <span id="highScoreDisplay" class="score-display">0</span></span>
+          <span>⚡ Скорость: <span id="speedDisplay">1</span>x</span>
+        </div>
+        
+        <div class="game-canvas-wrapper" style="position: relative;">
+          <canvas id="snakeCanvas" width="400" height="400"></canvas>
+          <div id="gameOverOverlay" class="game-over-overlay">
+            <p>💀 ИГРА ОКОНЧЕНА!</p>
+            <p style="font-size:0.7rem; margin-top:10px;">Счёт: <span id="finalScore">0</span></p>
+            <p style="font-size:0.5rem; margin-top:10px;">Нажми ПРОБЕЛ для рестарта</p>
+          </div>
+        </div>
+        
+        <div class="game-controls">
+          <button class="minecraft-btn" id="btnStartGame" style="min-width:auto; padding:10px 20px;">▶ Играть</button>
+          <button class="minecraft-btn" id="btnPauseGame" style="min-width:auto; padding:10px 20px;">⏸ Пауза</button>
+          <button class="minecraft-btn" id="btnResetGame" style="min-width:auto; padding:10px 20px;">🔄 Сброс</button>
+        </div>
+        
+        <div class="game-instructions">
+          <p>🎮 Управление: WASD или ←↑→↓</p>
+          <p>🍎 Собирай яблоки, чтобы расти</p>
+          <p>⚠️ Не врезайся в стены и в себя!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок техподдержки (отдельный контейнер) -->
+  <div class="pixel-border" style="margin-top:10px;">
+    <h2 style="font-size:1.2rem; margin-top:0;">🛠️ ТЕХ. ПОДДЕРЖКА</h2>
+    <div class="support-chat">
+      <div class="chat-messages" id="chatMessages">
+        <div>💬 <strong>Поддержка:</strong> Привет! Я Алекс из поддержки. Выбери проблему ниже, и я отвечу как живой человек 😊</div>
+      </div>
+      <div class="support-options">
+        <button class="support-btn" data-issue="pages">📄 Не открываются страницы</button>
+        <button class="support-btn" data-issue="loading">⏳ Не прогружается сайт</button>
+        <button class="support-btn" data-issue="safety">🔒 Безопасность серверов</button>
+      </div>
+      <div id="typingIndicator" class="typing-indicator" style="display:none;">Алекс печатает...</div>
+    </div>
+  </div>
+  
+  <footer>
+    © 2025 Minecraft Fan Portal · Все права принадлежат Mojang AB. Сайт создан в демонстрационных целях.
+  </footer>
+
+  <script>
+    (function() {
+      // --- Навигация между страницами ---
+      const pages = {
+        history: document.getElementById('pageHistory'),
+        servers: document.getElementById('pageServers'),
+        updates: document.getElementById('pageUpdates'),
+        snakeGame: document.getElementById('pageSnakeGame')
+      };
+
+      // Установка активной страницы
+      function setActivePage(pageId) {
+        Object.values(pages).forEach(page => page.classList.remove('active'));
+        if (pages[pageId]) {
+          pages[pageId].classList.add('active');
+        }
+        
+        // Останавливаем игру при переходе на другую страницу
+        if (pageId !== 'snakeGame' && snakeGame.isRunning) {
+          snakeGame.pause();
+        }
+      }
+
+      // Обработчики кнопок навигации
+      document.getElementById('btnHistory').addEventListener('click', () => setActivePage('history'));
+      document.getElementById('btnServers').addEventListener('click', () => setActivePage('servers'));
+      document.getElementById('btnUpdates').addEventListener('click', () => setActivePage('updates'));
+      document.getElementById('btnSnakeGame').addEventListener('click', () => {
+        setActivePage('snakeGame');
+        if (!snakeGame.isRunning && !snakeGame.gameOver) {
+          snakeGame.start();
+        }
+      });
+
+      // --- ЛОГИКА ИГРЫ ЗМЕЙКА ---
+      const snakeGame = {
+        canvas: document.getElementById('snakeCanvas'),
+        ctx: document.getElementById('snakeCanvas').getContext('2d'),
+        gridSize: 20,
+        tileCount: 20,
+        snake: [],
+        direction: { x: 1, y: 0 },
+        nextDirection: { x: 1, y: 0 },
+        food: {},
+        score: 0,
+        highScore: localStorage.getItem('snakeHighScore') || 0,
+        speed: 100,
+        baseSpeed: 100,
+        gameLoop: null,
+        isRunning: false,
+        isPaused: false,
+        gameOver: false,
+
+        init() {
+          document.getElementById('highScoreDisplay').textContent = this.highScore;
+          this.setupControls();
+          this.setupButtons();
+          this.drawInitialScreen();
+        },
+
+        drawInitialScreen() {
+          this.ctx.fillStyle = '#1a1a0f';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+          this.ctx.fillStyle = '#4a5a2e';
+          this.ctx.font = '14px "Press Start 2P"';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText('НАЖМИ ИГРАТЬ', this.canvas.width / 2, this.canvas.height / 2 - 20);
+          this.ctx.fillText('🐍', this.canvas.width / 2, this.canvas.height / 2 + 30);
+        },
+
+        start() {
+          if (this.isRunning && !this.isPaused) return;
+          
+          if (this.gameOver || this.snake.length === 0) {
+            this.resetGame();
+          }
+          
+          this.isRunning = true;
+          this.isPaused = false;
+          this.gameOver = false;
+          document.getElementById('gameOverOverlay').style.display = 'none';
+          document.getElementById('btnStartGame').textContent = '▶ Играть';
+          
+          this.gameLoop = setInterval(() => this.update(), this.speed);
+        },
+
+        pause() {
+          if (!this.isRunning) return;
+          this.isPaused = true;
+          this.isRunning = false;
+          clearInterval(this.gameLoop);
+          document.getElementById('btnStartGame').textContent = '▶ Продолжить';
+        },
+
+        resetGame() {
+          clearInterval(this.gameLoop);
+          this.snake = [
+            { x: 10, y: 10 },
+            { x: 9, y: 10 },
+            { x: 8, y: 10 }
+          ];
+          this.direction = { x: 1, y: 0 };
+          this.nextDirection = { x: 1, y: 0 };
+          this.score = 0;
+          this.speed = this.baseSpeed;
+          this.isRunning = false;
+          this.isPaused = false;
+          this.gameOver = false;
+          
+          document.getElementById('scoreDisplay').textContent = '0';
+          document.getElementById('speedDisplay').textContent = '1';
+          document.getElementById('gameOverOverlay').style.display = 'none';
+          document.getElementById('btnStartGame').textContent = '▶ Играть';
+          
+          this.generateFood();
+          this.draw();
+        },
+
+        generateFood() {
+          do {
+            this.food = {
+              x: Math.floor(Math.random() * this.tileCount),
+              y: Math.floor(Math.random() * this.tileCount)
+            };
+          } while (this.snake.some(segment => segment.x === this.food.x && segment.y === this.food.y));
+        },
+
+        update() {
+          this.direction = { ...this.nextDirection };
+          
+          const head = { ...this.snake[0] };
+          head.x += this.direction.x;
+          head.y += this.direction.y;
+
+          // Проверка столкновения со стенами
+          if (head.x < 0 || head.x >= this.tileCount || head.y < 0 || head.y >= this.tileCount) {
+            this.endGame();
+            return;
+          }
+
+          // Проверка столкновения с собой
+          if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+            this.endGame();
+            return;
+          }
+
+          this.snake.unshift(head);
+
+          // Проверка съедения еды
+          if (head.x === this.food.x && head.y === this.food.y) {
+            this.score += 10;
+            document.getElementById('scoreDisplay').textContent = this.score;
+            
+            // Увеличение скорости каждые 50 очков
+            if (this.score % 50 === 0 && this.speed > 40) {
+              this.speed -= 5;
+              document.getElementById('speedDisplay').textContent = 
+                Math.round((this.baseSpeed / this.speed) * 10) / 10;
+              clearInterval(this.gameLoop);
+              this.gameLoop = setInterval(() => this.update(), this.speed);
+            }
+            
+            this.generateFood();
+          } else {
+            this.snake.pop();
+          }
+
+          this.draw();
+        },
+
+        endGame() {
+          clearInterval(this.gameLoop);
+          this.isRunning = false;
+          this.gameOver = true;
+          
+          // Сохранение рекорда
+          if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem('snakeHighScore', this.highScore);
+            document.getElementById('highScoreDisplay').textContent = this.highScore;
+          }
+          
+          document.getElementById('finalScore').textContent = this.score;
+          document.getElementById('gameOverOverlay').style.display = 'block';
+          document.getElementById('btnStartGame').textContent = '▶ Играть заново';
+          
+          // Эффект проигрыша
+          this.drawGameOverEffect();
+        },
+
+        drawGameOverEffect() {
+          this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+          this.snake.forEach(segment => {
+            this.ctx.fillRect(
+              segment.x * this.gridSize + 1,
+              segment.y * this.gridSize + 1,
+              this.gridSize - 2,
+              this.gridSize - 2
+            );
+          });
+        },
+
+        draw() {
+          // Очистка холста
+          this.ctx.fillStyle = '#222211';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          // Отрисовка сетки
+          this.ctx.strokeStyle = '#2a2a1a';
+          this.ctx.lineWidth = 0.5;
+          for (let i = 0; i <= this.tileCount; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i * this.gridSize, 0);
+            this.ctx.lineTo(i * this.gridSize, this.canvas.height);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, i * this.gridSize);
+            this.ctx.lineTo(this.canvas.width, i * this.gridSize);
+            this.ctx.stroke();
+          }
+
+          // Отрисовка еды (яблоко в стиле Minecraft)
+          this.ctx.fillStyle = '#ff4444';
+          this.ctx.fillRect(
+            this.food.x * this.gridSize + 2,
+            this.food.y * this.gridSize + 2,
+            this.gridSize - 4,
+            this.gridSize - 4
+          );
+          // Блик на яблоке
+          this.ctx.fillStyle = '#ff8888';
+          this.ctx.fillRect(
+            this.food.x * this.gridSize + 4,
+            this.food.y * this.gridSize + 4,
+            4,
+            4
+          );
+          // Стебель
+          this.ctx.fillStyle = '#5a3a1a';
+          this.ctx.fillRect(
+            this.food.x * this.gridSize + 8,
+            this.food.y * this.gridSize,
+            4,
+            4
+          );
+          // Листик
+          this.ctx.fillStyle = '#4a8a2a';
+          this.ctx.fillRect(
+            this.food.x * this.gridSize + 4,
+            this.food.y * this.gridSize - 2,
+            6,
+            4
+          );
+
+          // Отрисовка змейки
+          this.snake.forEach((segment, index) => {
+            if (index === 0) {
+              // Голова
+              this.ctx.fillStyle = '#5a8a2a';
+              this.ctx.fillRect(
+                segment.x * this.gridSize + 1,
+                segment.y * this.gridSize + 1,
+                this.gridSize - 2,
+                this.gridSize - 2
+              );
+              // Глаза
+              this.ctx.fillStyle = '#ffffff';
+              const eyeSize = 4;
+              const eyeOffset = 5;
+              if (this.direction.x === 1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 14, segment.y * this.gridSize + 3, eyeSize, eyeSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 14, segment.y * this.gridSize + 13, eyeSize, eyeSize);
+              } else if (this.direction.x === -1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 2, segment.y * this.gridSize + 3, eyeSize, eyeSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 2, segment.y * this.gridSize + 13, eyeSize, eyeSize);
+              } else if (this.direction.y === -1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 3, segment.y * this.gridSize + 2, eyeSize, eyeSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 13, segment.y * this.gridSize + 2, eyeSize, eyeSize);
+              } else {
+                this.ctx.fillRect(segment.x * this.gridSize + 3, segment.y * this.gridSize + 14, eyeSize, eyeSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 13, segment.y * this.gridSize + 14, eyeSize, eyeSize);
+              }
+              // Зрачки
+              this.ctx.fillStyle = '#000000';
+              const pupilSize = 2;
+              if (this.direction.x === 1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 15, segment.y * this.gridSize + 4, pupilSize, pupilSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 15, segment.y * this.gridSize + 14, pupilSize, pupilSize);
+              } else if (this.direction.x === -1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 3, segment.y * this.gridSize + 4, pupilSize, pupilSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 3, segment.y * this.gridSize + 14, pupilSize, pupilSize);
+              } else if (this.direction.y === -1) {
+                this.ctx.fillRect(segment.x * this.gridSize + 4, segment.y * this.gridSize + 3, pupilSize, pupilSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 14, segment.y * this.gridSize + 3, pupilSize, pupilSize);
+              } else {
+                this.ctx.fillRect(segment.x * this.gridSize + 4, segment.y * this.gridSize + 15, pupilSize, pupilSize);
+                this.ctx.fillRect(segment.x * this.gridSize + 14, segment.y * this.gridSize + 15, pupilSize, pupilSize);
+              }
+            } else {
+              // Тело
+              this.ctx.fillStyle = '#3a6a1a';
+              this.ctx.fillRect(
+                segment.x * this.gridSize + 2,
+                segment.y * this.gridSize + 2,
+                this.gridSize - 4,
+                this.gridSize - 4
+              );
+              // Текстура тела
+              this.ctx.fillStyle = '#4a7a2a';
+              this.ctx.fillRect(
+                segment.x * this.gridSize + 4,
+                segment.y * this.gridSize + 4,
+                4,
+                4
+              );
+            }
+          });
+        },
+
+        setupControls() {
+          document.addEventListener('keydown', (e) => {
+            if (pages.snakeGame.classList.contains('active')) {
+              switch(e.key.toLowerCase()) {
+                case 'w':
+                case 'arrowup':
+                  e.preventDefault();
+                  if (this.direction.y !== 1) {
+                    this.nextDirection = { x: 0, y: -1 };
+                  }
+                  break;
+                case 's':
+                case 'arrowdown':
+                  e.preventDefault();
+                  if (this.direction.y !== -1) {
+                    this.nextDirection = { x: 0, y: 1 };
+                  }
+                  break;
+                case 'a':
+                case 'arrowleft':
+                  e.preventDefault();
+                  if (this.direction.x !== 1) {
+                    this.nextDirection = { x: -1, y: 0 };
+                  }
+                  break;
+                case 'd':
+                case 'arrowright':
+                  e.preventDefault();
+                  if (this.direction.x !== -1) {
+                    this.nextDirection = { x: 1, y: 0 };
+                  }
+                  break;
+                case ' ':
+                  e.preventDefault();
+                  if (this.gameOver) {
+                    this.resetGame();
+                    this.start();
+                  } else if (this.isPaused) {
+                    this.start();
+                  } else if (this.isRunning) {
+                    this.pause();
+                  } else {
+                    this.start();
+                  }
+                  break;
+              }
+            }
+          });
+        },
+
+        setupButtons() {
+          document.getElementById('btnStartGame').addEventListener('click', () => {
+            if (this.gameOver) {
+              this.resetGame();
+            }
+            if (this.isPaused) {
+              this.start();
+            } else if (!this.isRunning) {
+              this.start();
+            } else {
+              this.pause();
+            }
+          });
+
+          document.getElementById('btnPauseGame').addEventListener('click', () => {
+            if (this.isRunning) {
+              this.pause();
+            }
+          });
+
+          document.getElementById('btnResetGame').addEventListener('click', () => {
+            this.resetGame();
+          });
+        }
+      };
+
+      // Инициализация игры
+      snakeGame.init();
+      snakeGame.resetGame();
+
+      // --- Логика техподдержки (имитация живого ответа) ---
+      const chatMessages = document.getElementById('chatMessages');
+      const typingIndicator = document.getElementById('typingIndicator');
+      const supportButtons = document.querySelectorAll('.support-btn');
+
+      function addMessage(sender, text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.marginBottom = '10px';
+        messageDiv.style.lineHeight = '1.6';
+        const prefix = isUser ? '🧑 Вы:' : '💬 Алекс:';
+        messageDiv.innerHTML = `<strong>${prefix}</strong> ${text}`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function simulateHumanResponse(responseText, callback) {
+        typingIndicator.style.display = 'block';
+        const delay = Math.floor(Math.random() * 1300) + 1200;
+        setTimeout(() => {
+          typingIndicator.style.display = 'none';
+          addMessage('Алекс', responseText);
+          if (callback) callback();
+        }, delay);
+      }
+
+      supportButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const issue = this.getAttribute('data-issue');
+          let userMessage = '';
+          let response = '';
+
+          switch(issue) {
+            case 'pages':
+              userMessage = 'У меня не открываются страницы (История, Сервера, Обновления).';
+              response = 'Понял тебя! Попробуй очистить кэш браузера (Ctrl+F5). Также проверь, не заблокированы ли скрипты. У нас всё работает, но я передам разработчикам твой кейс. Держи связь!';
+              break;
+            case 'loading':
+              userMessage = 'Сайт не прогружается, белый экран или зависает.';
+              response = 'Ох, это неприятно. Скорее всего, проблемы с соединением или блокировщик рекламы вмешивается. Попробуй отключить расширения и обновить страницу. Если не поможет, напиши мне снова — проверим сервер.';
+              break;
+            case 'safety':
+              userMessage = 'Безопасно ли играть на серверах, которые здесь перечислены?';
+              response = 'Отличный вопрос! Hypixel, Mineplex и CubeCraft — это крупнейшие официальные сервера с многолетней репутацией. Они полностью безопасны, используют защиту аккаунтов и модерацию. Но всегда помни: не передавай пароли третьим лицам. Играй спокойно!';
+              break;
+            default:
+              userMessage = 'Нужна помощь.';
+              response = 'Привет! Расскажи подробнее, что случилось. Я на связи.';
+          }
+
+          addMessage('Вы', userMessage, true);
+          simulateHumanResponse(response);
+        });
+      });
+
+      console.log('🐷 Крипер? Осторожно! Добро пожаловать в Minecraft Portal. Не забудь поиграть в змейку! 🐍');
+    })();
+  </script>
+</body>
+</html>
